@@ -22,35 +22,31 @@ class WeatherSDK:
 
 class ApiHandler(AbstractLambda):
 
-   def validate_request(self, event) -> dict:
-    if not event:
+    def validate_request(self, event) -> dict:
+        if not event:
+            return {
+                'is_valid': False,
+                'status_code': 400,
+                'body': {
+                    'message': "Invalid event structure"
+                }
+            }
+
+        path = event.get('rawPath', '')
+        method = event.get('requestContext', {}).get('http', {}).get('method', '')
+
+        if path == '/weather' and method == 'GET':
+            return {'is_valid': True}
+        
         return {
             'is_valid': False,
             'status_code': 400,
             'body': {
-                'message': "Invalid event structure"
+                'message': f"Bad request syntax or unsupported method. Request path: {path}. HTTP method: {method}"
             }
         }
-
-    path = event.get('rawPath', '')
-    method = event.get('requestContext', {}).get('http', {}).get('method', '')
-
-    if path == '/weather' and method == 'GET':
-        return {'is_valid': True}
-    
-    return {
-        'is_valid': False,
-        'status_code': 400,
-        'body': {
-            'message': f"Bad request syntax or unsupported method. Request path: {path}. HTTP method: {method}"
-        }
-    }
         
     def handle_request(self, event, context):
-        validation_result = self.validate_request(event)
-        if not validation_result['is_valid']:
-            return validation_result['status_code'], validation_result['body']
-
         try:
             weather_data = WeatherSDK.get_weather()
             return 200, weather_data
@@ -58,15 +54,25 @@ class ApiHandler(AbstractLambda):
             _LOG.error(f"Error fetching weather data: {str(e)}")
             return 500, {'error': 'Internal server error'}
 
+    def lambda_handler(self, event, context):
+        validation_result = self.validate_request(event)
+        if not validation_result.get('is_valid', False):
+            return {
+                'statusCode': validation_result['status_code'],
+                'body': json.dumps(validation_result['body']),
+                'headers': {'Content-Type': 'application/json'},
+                'isBase64Encoded': False
+            }
+
+        status_code, body = self.handle_request(event, context)
+        return {
+            'statusCode': status_code,
+            'body': json.dumps(body),
+            'headers': {'Content-Type': 'application/json'},
+            'isBase64Encoded': False
+        }
+
 HANDLER = ApiHandler()
 
 def lambda_handler(event, context):
-    status_code, body = HANDLER.lambda_handler(event=event, context=context)
-    return {
-        'statusCode': status_code,
-        'body': json.dumps(body),
-        'headers': {
-            'Content-Type': 'application/json'
-        },
-        'isBase64Encoded': False
-    }
+    return HANDLER.lambda_handler(event=event, context=context)
