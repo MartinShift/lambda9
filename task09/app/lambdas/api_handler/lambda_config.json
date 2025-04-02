@@ -14,7 +14,7 @@
     "publish_version": true,
     "alias": "learn",
     "url_config": {
-        "authorization_type": "NONE",
+        "auth_type": "NONE",
         "cors": {
           "allow_origins": ["*"],
           "allow_methods": ["*"],
