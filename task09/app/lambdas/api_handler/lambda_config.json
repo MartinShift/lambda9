@@ -1,7 +1,7 @@
 {
     "version": "1.0",
     "name": "api_handler",
-    "func_name": "lambdas/api_handler/index.handler",
+    "func_name": "handler",
     "resource_type": "lambda",
     "iam_role_name": "api_handler-role",
     "runtime": "nodejs20.x",
@@ -14,14 +14,7 @@
     "publish_version": true,
     "alias": "learn",
     "url_config": {
-        "auth_type": "NONE",
-        "cors": {
-          "allow_credentials": true,
-          "allow_headers": ["*"],
-          "allow_methods": ["GET"],
-          "allow_origins": ["*"],
-          "max_age": 300
-        }
+        "auth_type": "NONE"
       },
     "ephemeral_storage": 512,
     "tags": {},

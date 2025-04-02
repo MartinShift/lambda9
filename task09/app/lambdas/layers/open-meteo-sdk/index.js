@@ -6,36 +6,13 @@ const https = require('https');
 class OpenMeteoSDK {
   /**
    * Fetches weather forecast data from Open-Meteo API
-   * @param {Object} options - Configuration options
-   * @param {number} options.latitude - Latitude coordinate
-   * @param {number} options.longitude - Longitude coordinate
-   * @param {Array} options.current - Current weather variables to include
-   * @param {Array} options.hourly - Hourly forecast variables to include
    * @returns {Promise<Object>} - Weather forecast data
    */
-  async getWeatherForecast(options = {}) {
-    const {
-      latitude = 52.52,
-      longitude = 13.41,
-      current = ['temperature_2m', 'wind_speed_10m'],
-      hourly = ['temperature_2m', 'relative_humidity_2m', 'wind_speed_10m']
-    } = options;
-
-    const url = this._buildUrl(latitude, longitude, current, hourly);
+  async getWeatherForecast() {
+    // Using the exact URL from the task description
+    const url = 'https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.41&current=temperature_2m,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m';
     
     return this._makeRequest(url);
-  }
-
-  /**
-   * Builds the URL for the Open-Meteo API request
-   * @private
-   */
-  _buildUrl(latitude, longitude, current, hourly) {
-    const baseUrl = 'https://api.open-meteo.com/v1/forecast';
-    const currentParams = current.join(',');
-    const hourlyParams = hourly.join(',');
-    
-    return `${baseUrl}?latitude=${latitude}&longitude=${longitude}&current=${currentParams}&hourly=${hourlyParams}`;
   }
 
   /**
