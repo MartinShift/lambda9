@@ -58,10 +58,13 @@ class ApiHandler(AbstractLambda):
         validation_result = self.validate_request(event)
         if not validation_result.get('is_valid', False):
             return {
+            'statusCode': validation_result['status_code'],
+            'body': json.dumps({
                 'statusCode': validation_result['status_code'],
-                'body': json.dumps(validation_result['body']),
-                'headers': {'Content-Type': 'application/json'},
-                'isBase64Encoded': False
+                'message': validation_result['body']['message']
+            }),
+            'headers': {'Content-Type': 'application/json'},
+            'isBase64Encoded': False
             }
 
         status_code, body = self.handle_request(event, context)
